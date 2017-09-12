@@ -531,10 +531,8 @@ void EthRFIDRelayApp::loop() {
               char topic[80];
               char value[16];
 
-              strcpy_P(topic, mqttDSTempTopic);
-              strcat_P(topic, strSlash);
-              strcat(topic, itoa(i + 1, value, 10));
-              dtostrf(dsTemperature[i], 6, 2, value);
+              sprintf(topic, sizeof(topic), F("%S/%d"), FPSTR(mqttDSTempTopic), i + 1);
+              dtostrf(dsTemperature[i], 4, 2, value);
               mqttPublish(topic, value);
             }
             if (! isnan(dsMinTemp[i])) {
@@ -2200,7 +2198,7 @@ src.value='';\n\
     if (isnan(dsMinTemp[i]))
       *value = '\0';
     else
-      dtostrf(dsMinTemp[i], 6, 2, value);
+      dtostrf(dsMinTemp[i], 4, 2, value);
     htmlTagInputText(name, value, 12, 12, F("onblur=\"emptyNaN(this)\""), true);
     htmlTagEnd(FPSTR(tagTD), true);
     htmlTagStart(FPSTR(tagTD));
@@ -2219,7 +2217,7 @@ src.value='';\n\
     if (isnan(dsMaxTemp[i]))
       *value = '\0';
     else
-      dtostrf(dsMaxTemp[i], 6, 2, value);
+      dtostrf(dsMaxTemp[i], 4, 2, value);
     htmlTagInputText(name, value, 12, 12, F("onblur=\"emptyNaN(this)\""), true);
     htmlTagEnd(FPSTR(tagTD), true);
     htmlTagStart(FPSTR(tagTD));
@@ -2294,19 +2292,13 @@ void EthRFIDRelayApp::mqttResubscribe() {
 
   for (uint8_t i = 0; i < MAX_RELAYS; ++i) {
     if (relays[i].relayPin != -1) {
-      if (*mqttClient)
-        sprintf(topic, sizeof(topic), F("/%s%S/%d"), mqttClient, FPSTR(mqttRelayTopic), i + 1);
-      else
-        sprintf(topic, sizeof(topic), F("%S/%d"), FPSTR(mqttRelayTopic), i + 1);
+      sprintf(topic, sizeof(topic), F("%S/%d"), FPSTR(mqttRelayTopic), i + 1);
       itoa(digitalRead(relays[i].relayPin) == relays[i].relayLevel, value, 10);
       mqttPublish(topic, value);
     }
   }
 
-  if (*mqttClient)
-    sprintf(topic, sizeof(topic), F("/%s%S/#"), mqttClient, FPSTR(mqttRelayTopic));
-  else
-    sprintf(topic, sizeof(topic), F("%S/#"), FPSTR(mqttRelayTopic));
+  sprintf(topic, sizeof(topic), F("%S/#"), FPSTR(mqttRelayTopic));
   mqttSubscribe(topic);
 }
 
@@ -2521,10 +2513,7 @@ void EthRFIDRelayApp::switchRelay(uint8_t id, bool on) {
       char topic[80];
       char value[2];
 
-      if (*mqttClient)
-        sprintf(topic, sizeof(topic), F("/%s%S/%d"), mqttClient, FPSTR(mqttRelayTopic), id + 1);
-      else
-        sprintf(topic, sizeof(topic), F("%S/%d"), FPSTR(mqttRelayTopic), id + 1);
+      sprintf(topic, sizeof(topic), F("%S/%d"), FPSTR(mqttRelayTopic), id + 1);
       itoa(on, value, 10);
       mqttPublish(topic, value);
     }
@@ -2634,15 +2623,10 @@ int16_t EthRFIDRelayApp::writeScheduleConfig(uint16_t offset) {
 
 void EthRFIDRelayApp::publishKey() {
   if (_pubSubClient && _pubSubClient->connected()) {
-    char topic[80];
     char value[UID_LENGTH * 2 + 1];
 
-    if (*mqttClient)
-      sprintf(topic, sizeof(topic), F("/%s%S"), mqttClient, FPSTR(mqttRFIDTopic));
-    else
-      strcpy_P(topic, mqttRFIDTopic);
     keyToStr(value, lastKey);
-    mqttPublish(topic, value);
+    mqttPublish(FPSTR(mqttRFIDTopic), value);
   }
 }
 

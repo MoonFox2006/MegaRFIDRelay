@@ -2539,7 +2539,7 @@ bool EthWebServerApp::mqttSubscribe(const __FlashStringHelper* topic) {
     _log.println(FPSTR(strNotEnoughMemory));
     return false;
   }
-  strcpy(_topic, (PGM_P)topic);
+  strcpy_P(_topic, (PGM_P)topic);
   result = mqttSubscribe(_topic);
   free((void*)_topic);
 
@@ -2581,8 +2581,8 @@ bool EthWebServerApp::mqttPublish(const __FlashStringHelper* topic, const __Flas
     _log.println(FPSTR(strNotEnoughMemory));
     return false;
   }
-  strcpy(_topic, (PGM_P)topic);
-  strcpy(_value, (PGM_P)value);
+  strcpy_P(_topic, (PGM_P)topic);
+  strcpy_P(_value, (PGM_P)value);
   result = mqttPublish(_topic, _value, retained);
   free((void*)_value);
   free((void*)_topic);
@@ -2599,7 +2599,7 @@ bool EthWebServerApp::mqttPublish(const char* topic, const __FlashStringHelper* 
     _log.println(FPSTR(strNotEnoughMemory));
     return false;
   }
-  strcpy(_value, (PGM_P)value);
+  strcpy_P(_value, (PGM_P)value);
   result = mqttPublish(topic, _value, retained);
   free((void*)_value);
 
@@ -2615,7 +2615,7 @@ bool EthWebServerApp::mqttPublish(const __FlashStringHelper* topic, const char* 
     _log.println(FPSTR(strNotEnoughMemory));
     return false;
   }
-  strcpy(_topic, (PGM_P)topic);
+  strcpy_P(_topic, (PGM_P)topic);
   result = mqttPublish(_topic, value, retained);
   free((void*)_topic);
 
