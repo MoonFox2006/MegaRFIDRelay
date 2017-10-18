@@ -35,7 +35,7 @@ void parseUnixTime(uint32_t unixtime, int8_t& hour, int8_t& minute, int8_t& seco
   unixtime /= 60;
   hour = unixtime % 24;
   uint16_t days = unixtime / 24;
-  weekday = (days % 7) + 3; // 1 Jan 1970 is Thursday
+  weekday = (days + 3) % 7; // 1 Jan 1970 is Thursday
   bool leap;
   if (days >= EPOCH_TIME_2017) {
     year = 2017;
