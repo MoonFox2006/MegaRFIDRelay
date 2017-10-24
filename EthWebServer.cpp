@@ -2523,11 +2523,20 @@ void EthWebServerApp::mqttCallback(const char* topic, const uint8_t* payload, ui
 }
 
 bool EthWebServerApp::mqttSubscribe(const char* topic) {
+  char _topic[128];
+
+  if (*mqttClient) { // "/client..."
+    strcpy_P(_topic, strSlash);
+    strcat(_topic, mqttClient);
+    strcat(_topic, topic);
+  } else {
+    strcpy(_topic, topic);
+  }
   _log.print(F("Subscribe to MQTT topic \""));
-  _log.print(topic);
+  _log.print(_topic);
   _log.println('\"');
 
-  return _pubSubClient->subscribe(topic);
+  return _pubSubClient->subscribe(_topic);
 }
 
 bool EthWebServerApp::mqttSubscribe(const __FlashStringHelper* topic) {
