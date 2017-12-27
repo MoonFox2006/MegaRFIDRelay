@@ -427,14 +427,14 @@ void EthRFIDRelayApp::loop() {
 
 #ifdef LED_PIN
   if (masterMode) {
-    if (ms > masterBlinkTime) {
+    if ((int32_t)(ms - masterBlinkTime) >= 0) {
       digitalWrite(LED_PIN, ! digitalRead(LED_PIN));
       masterBlinkTime = ms + MASTER_BLINK_PULSE;
     }
   }
 #endif
 
-  if ((ms > nextCardRead) && rfid.PICC_IsNewCardPresent() && rfid.PICC_ReadCardSerial()) {
+  if (((int32_t)(ms - nextCardRead) >= 0) && rfid.PICC_IsNewCardPresent() && rfid.PICC_ReadCardSerial()) {
     uint16_t i;
 
     copyKey(lastKey, rfid.uid.uidByte, rfid.uid.size);
