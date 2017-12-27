@@ -357,7 +357,7 @@ void EthRFIDRelayApp::loop() {
   EthWebServerApp::loop();
 
   for (uint8_t i = 0; i < MAX_RELAYS; ++i) {
-    if ((relays[i].relayPin != -1) && _autoRelease[i] && (millis() > _autoRelease[i])) {
+    if ((relays[i].relayPin != -1) && _autoRelease[i] && ((int32_t)(millis() - _autoRelease[i]) >= 0)) {
       logDateTime(F("Relay #"));
       _log.print(i + 1);
       _log.println(F(" auto off"));
@@ -516,7 +516,7 @@ void EthRFIDRelayApp::loop() {
   const float DS1820_TOLERANCE = 0.2;
 
   if ((dsPin != -1) && ds) {
-    if (millis() >= dsReadTime) {
+    if ((int32_t)(millis() - dsReadTime) >= 0) {
       float v;
 
       for (uint8_t i = 0; i < MAX_DS1820; ++i) {
@@ -1858,7 +1858,7 @@ void EthRFIDRelayApp::handleLastKey() {
   const int32_t keyTimeout = 1000;
   static uint32_t lastTime;
 
-  if (((int32_t)millis() - (int32_t)lastTime < keyTimeout) && (! isKeyEmpty(lastKey))) {
+  if ((millis() - lastTime < keyTimeout) && (! isKeyEmpty(lastKey))) {
     if (! startResponse(200, FPSTR(typeTextJson)))
       return;
 
@@ -2532,9 +2532,9 @@ bool EthRFIDRelayApp::debounceRead(uint8_t id, uint32_t debounceTime) {
     return (digitalRead(relays[id].btnPin) == relays[id].btnLevel);
 
   if (digitalRead(relays[id].btnPin) == relays[id].btnLevel) { // Button pressed
-    uint32_t maxTime = millis() + debounceTime;
+    uint32_t startTime = millis();
 
-    while (millis() < maxTime) {
+    while (millis() - startTime < debounceTime) {
       if (digitalRead(relays[id].btnPin) != relays[id].btnLevel)
         return false;
       delay(1);
