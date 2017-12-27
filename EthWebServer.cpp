@@ -115,7 +115,7 @@ void EthWebServerApp::setup() {
 void EthWebServerApp::loop() {
   const uint32_t MAINTENANCE_RETRY = 60000; // 1 min. in ms.
 
-  if ((_nextMaintenance != (uint32_t)-1) && (millis() > _nextMaintenance)) {
+  if ((_nextMaintenance != (uint32_t)-1) && ((int32_t)(millis() - _nextMaintenance) >= 0)) {
     switch (Ethernet.maintain()) {
       case DHCP_CHECK_RENEW_FAIL:
       case DHCP_CHECK_REBIND_FAIL:
@@ -500,7 +500,7 @@ uint32_t EthWebServerApp::getTime() {
 
   static uint8_t retry = 0;
 
-  if (*ntpServer && (((! _lastTime) && (retry < MAX_RETRY)) || (_nextUpdate && (millis() > _nextUpdate)))) {
+  if (*ntpServer && (((! _lastTime) && (retry < MAX_RETRY)) || (_nextUpdate && ((int32_t)(millis() - _nextUpdate) >= 0)))) {
     _log.print(F("NTP update "));
     if (updateTime()) {
       retry = 0;
@@ -569,9 +569,9 @@ bool EthWebServerApp::updateTime(uint32_t timeout) {
     udp.stop();
     return false;
   }
-  uint32_t time = millis() + timeout;
+  uint32_t time = millis();
   while (! udp.parsePacket()) {
-    if (millis() > time) {
+    if (millis() - time > timeout) {
       udp.stop();
       return false;
     }
@@ -2483,7 +2483,7 @@ bool EthWebServerApp::mqttReconnect() {
   static uint32_t nextTry;
   bool result = false;
 
-  if (millis() > nextTry) {
+  if ((int32_t)(millis() - nextTry) >= 0) {
     logDateTime(F("Attempting MQTT connection..."));
     if (*mqttUser)
       result = _pubSubClient->connect(mqttClient, mqttUser, mqttPassword);
